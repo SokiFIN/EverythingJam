@@ -1,0 +1,4 @@
+Dpad stick press = 3th axis
+Whammy = 4th axis
+Tilt UP/DOWN = 5th axis
+Tilt Forward/Back = 9th axis // Not confirmed
