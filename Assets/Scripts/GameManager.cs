@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         Instance = this;
+ 
     }
 
     private IEnumerator InfoTextBlink()
@@ -74,9 +75,16 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         controllers = Input.GetJoystickNames();
-        for (int i = 0; i < controllers.Length; i++)
+
+        if (controllers.Length >= 2) 
         {
-            Debug.Log("Controller index " + i + ": " + controllers[i]);
+            Players[0].controlledID = 1;
+            Debug.Log($"Assigned controller {controllers[1]} to P1");
+            if (controllers.Length >= 2)
+            {
+                Players[1].controlledID = 2;
+                Debug.Log($"Assigned controller {controllers[2]} to P2");
+            }
         }
 
 

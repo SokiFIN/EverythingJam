@@ -40,6 +40,7 @@ public class InputGetter : MonoBehaviour
     {
         StartCoroutine(TurnIndicator());
         ogColor = ownSprite.GetComponent<SpriteRenderer>().color;
+
     }
 
     private IEnumerator TurnIndicator()
@@ -92,6 +93,22 @@ public class InputGetter : MonoBehaviour
     void Update()
     {
 
+        if (Input.GetButtonDown("J0_Attack") && player == 1 ||
+            Input.GetButtonDown("J0_Defend") && player == 1 ||
+            Input.GetButtonDown("J0_Heal") && player == 1)
+        {
+            Debug.Log($"Player: {player} tried J0");
+            return;
+        }
+
+        if (Input.GetButtonDown("J1_Attack") && player == 0 ||
+            Input.GetButtonDown("J1_Defend") && player == 0 ||
+            Input.GetButtonDown("J1_Heal") && player == 0)
+        {
+            Debug.Log($"Player: {player} tried J1");
+            return;
+        }
+
         // Dont know the button yet.
         if (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
@@ -137,7 +154,10 @@ public class InputGetter : MonoBehaviour
         //    Debug.Log($"Orange was pressed!");
         //}
 
-
+        if (controlledID >= 0)
+        {
+            CheckTilt();
+        }
 
 
         if (tilt != -1 && actionInt != -1)
