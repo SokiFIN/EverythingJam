@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private List<GameObject> p2Arms;
 
+    [SerializeField]
+    private GameObject endHint;
+
     private AudioSource aS;
 
     [SerializeField]
@@ -72,14 +75,22 @@ public class GameManager : MonoBehaviour
     {
         while (results)
         {
+            if (GameEnd)
+            {
+                endHint.SetActive(true);
+            }
+
             infoText.gameObject.SetActive(true);
 
-            yield return new WaitForSeconds(0.1f);
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.4f);
 
             infoText.gameObject.SetActive(false);
 
-            yield return new WaitForSeconds(0.2f);
+            if (GameEnd)
+            {
+                endHint.SetActive(false);
+            }
+            yield return new WaitForSeconds(0.3f);
         }
         infoText.gameObject.SetActive(true);
     }

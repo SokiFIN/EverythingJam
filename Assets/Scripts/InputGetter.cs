@@ -129,7 +129,7 @@ public class InputGetter : MonoBehaviour
         }
 
         // Dont know the button yet.
-        if (Input.GetKeyDown(KeyCode.JoystickButton4) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.JoystickButton4) || Input.GetKeyDown(KeyCode.Escape))
         {
             SceneManager.LoadScene(0);
         }
