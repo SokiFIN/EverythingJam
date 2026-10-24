@@ -4,10 +4,10 @@
 
 Local multiplayer game where you play as bots and try to kill each other by using simple actions as Parry, Attack and Heal. 
 
-Attack if lands deals 1 heart of damage.
+Attack: If lands deals 1 heart of damage.
 
-Parry allows you to cause 3x the damage to your opponent if you guess the direction correctly
+Parry: Allows you to cause 3x the damage to your opponent if you guess the direction correctly where your opponent attacks from. If you guess incorrectly you take 2x damage! If the opponent heals it fails.
 
-Heal allows you to heal 2 hearts but you only have 3 of them that you can use per battle.
+Heal: Allows you to heal 2 hearts but you only have 3 of them that you can use per battle.
 
 Also if you own an Guitar Hero Controller. You may use it it was included as a controller as a joke.
