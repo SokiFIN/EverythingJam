@@ -14,10 +14,25 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     public GameObject p2ReadyMarker;
     [SerializeField]
+    public GameObject healthsParent;
+    [SerializeField]
     private TMP_Text infoText;
+    [SerializeField]
+    private List<GameObject> p1DirIndicators;
+    [SerializeField]
+    private List<GameObject> p2DirIndicators;
+
+    private SpriteRenderer p1SpriteRenderer;
+    private SpriteRenderer p2SpriteRenderer;
+
+    private Color damageColor = Color.red;
+    private Color healColor = Color.forestGreen;
+    private Color shieldColor = Color.cornflowerBlue;
     private string[] controllers;
 
     private List<string> texts = new() { "Choose an action!", "Showing Results!"};
+
+    private bool results = false;
 
     public enum Actions
     {
@@ -32,7 +47,7 @@ public class GameManager : MonoBehaviour
     public Actions p2PlannedAction = Actions.NOT_SELECTED; 
     public int p2Direction = 0; 
 
-    private bool gameEnd = false;
+    public bool GameEnd = false;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
@@ -42,14 +57,18 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator InfoTextBlink()
     {
-        while (!gameEnd)
+        while (results)
         {
             infoText.gameObject.SetActive(true);
+
             yield return new WaitForSeconds(0.1f);
             yield return new WaitForSeconds(0.2f);
+
             infoText.gameObject.SetActive(false);
+
             yield return new WaitForSeconds(0.2f);
         }
+        infoText.gameObject.SetActive(true);
     }
 
     private void Start()
@@ -59,93 +78,175 @@ public class GameManager : MonoBehaviour
         {
             Debug.Log("Controller index " + i + ": " + controllers[i]);
         }
+
+
         StartCoroutine(Setup());
-        StartCoroutine(InfoTextBlink());
+        //StartCoroutine(InfoTextBlink());
         
     }
 
+    private Color GetActionColor(int player)
+    {
+        Color color = Color.white;
+
+        switch (player)
+        {
+            case 0:
+                if (p1PlannedAction == Actions.ATTACK) color = damageColor;
+                if (p1PlannedAction == Actions.SHIELD) color = shieldColor;
+                if (p1PlannedAction == Actions.HEAL) color = healColor;
+                break;
+            case 1:
+                if (p2PlannedAction == Actions.ATTACK) color = damageColor;
+                if (p2PlannedAction == Actions.SHIELD) color = shieldColor;
+                if (p2PlannedAction == Actions.HEAL) color = healColor;
+                break;
+        }
+        return color;
+    }
 
     private IEnumerator Setup()
     {
+        var waitTime = 0.5f;
+
         Debug.Log("Setup waiting for actions");
         infoText.text = texts[0];
         p1ReadyMarker.SetActive(false);
         p2ReadyMarker.SetActive(false);
+
+        // Wait until both are ready
         yield return new WaitUntil(() => p1PlannedAction != Actions.NOT_SELECTED && p2PlannedAction != Actions.NOT_SELECTED);
 
+        results = true;
         Debug.Log("Initiating results!");
         infoText.text = texts[1];
-        // Heal.
+        StartCoroutine(InfoTextBlink());
+
+
+        // Direction indicator color & Direction show active
+        var p1SpriteRenderer = p1DirIndicators[p1Direction].GetComponent<SpriteRenderer>();
+        var p2SpriteRenderer = p2DirIndicators[p2Direction].GetComponent<SpriteRenderer>();
+        yield return new WaitForSeconds(1f);
+        p1SpriteRenderer.color = GetActionColor(0);
+        p1DirIndicators[p1Direction].SetActive(true);
+        yield return new WaitForSeconds(1f);
+        p2SpriteRenderer.color = GetActionColor(1);
+        p2DirIndicators[p2Direction].SetActive(true);
+        yield return new WaitForSeconds(1f);
+
+
+        // Heal actions.
         if (p1PlannedAction == Actions.HEAL)
         {
+            yield return new WaitForSeconds(waitTime);
             p1PlannedAction = Actions.NOT_SELECTED;
-            Players[0].ChangeHealth(2);
+            Players[0].ChangeHealth(2, false);
             Players[0].PotionCount -= 1;
+
         }
         if (p2PlannedAction == Actions.HEAL)
         {
+            yield return new WaitForSeconds(waitTime);
             p2PlannedAction = Actions.NOT_SELECTED;
-            Players[1].ChangeHealth(2);
+            Players[1].ChangeHealth(2, false);
             Players[1].PotionCount -= 1;
         }
 
-        // Shield.
+        // Shield actions.
         if (p1PlannedAction == Actions.SHIELD && p2PlannedAction == Actions.ATTACK)
         {
+            yield return new WaitForSeconds(waitTime);
             if (p1Direction == p2Direction)
             {
-                Players[1].ChangeHealth(-3);
+                Players[1].ChangeHealth(-3, true);
             }
             else
             {
-                Players[0].ChangeHealth(-2);
+                Players[0].ChangeHealth(-2, true);
             }
 
         }
         if (p2PlannedAction == Actions.SHIELD && p1PlannedAction == Actions.ATTACK)
         {
+            yield return new WaitForSeconds(waitTime);
             if (p1Direction == p2Direction)
             {
-                Players[0].ChangeHealth(-3);
+                Players[0].ChangeHealth(-3, true);
             }
             else
             {
-                Players[1].ChangeHealth(-2);
+                Players[1].ChangeHealth(-2, true);
             }
 
         }
 
-        if (p1PlannedAction == Actions.ATTACK)
+        // Attack actions.
+        if (p1PlannedAction == Actions.ATTACK && p2PlannedAction != Actions.SHIELD)
         {
-            Players[0].ChangeHealth(-1);
+            yield return new WaitForSeconds(waitTime);
+            Players[1].ChangeHealth(-1, true);
         }
-        if (p2PlannedAction == Actions.ATTACK)
+        if (p2PlannedAction == Actions.ATTACK && p1PlannedAction != Actions.SHIELD)
         {
-            Players[1].ChangeHealth(-1);
+            yield return new WaitForSeconds(waitTime);
+            Players[0].ChangeHealth(-1, true);
         }
 
+        // Reset everything
+        p1DirIndicators[p1Direction].SetActive(false);
+        p2DirIndicators[p2Direction].SetActive(false);
         p1Direction = 0;
         p2Direction = 0;
         p1PlannedAction = Actions.NOT_SELECTED;
         p2PlannedAction = Actions.NOT_SELECTED;
-        p1ReadyMarker.gameObject.SetActive(false);
-        p2ReadyMarker.gameObject.SetActive(false);
+        p1ReadyMarker.SetActive(false);
+        p2ReadyMarker.SetActive(false);
 
+        // Check if either player has won otherwise continue.
         if (Players[0].Health > 0 && Players[1].Health > 0)
         {
             StartCoroutine(Setup());
         }
         else
         {
-            if (Players[0].Health <= 0)
+
+            healthsParent.SetActive(false);
+
+            if (Players[0].Health <= 0 && Players[1].Health <= 0)
             {
-                infoText.text = "Player 1 WINS!";
+                infoText.text = "TIE";
+                infoText.color = Color.green;
+
+                Players[0].gameObject.SetActive(false);
+                Players[1].gameObject.SetActive(false);
+
+                GameEnd = true;
+            }
+            else if(Players[0].Health <= 0)
+            {
+                infoText.text = "Player 2 WINS!";
+                Players[0].gameObject.SetActive(false);
+                Players[1].transform.position = new Vector2();
+                infoText.color = Color.pink;
+                GameEnd = true;
             }
             else
             {
-                infoText.text = "Player 2 WINS!";
+                infoText.text = "Player 1 WINS!";
+                Players[1].gameObject.SetActive(false);
+                Players[0].transform.position = new Vector2();
+                infoText.color = Color.lightBlue;
+                GameEnd = true;
             }
         }
+
+
+        if (!GameEnd)
+        {
+            results = false;
+        }
+        yield return new WaitForSeconds(3f);
+
 
     }
 }
