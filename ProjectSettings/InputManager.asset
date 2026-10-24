@@ -153,7 +153,7 @@ InputManager:
     m_Name: J1_DOWN
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: up
+    negativeButton: 
     positiveButton: down
     altNegativeButton: 
     altPositiveButton: joystick 2 button 5
@@ -169,8 +169,8 @@ InputManager:
     m_Name: J0_Tilt
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: s
-    positiveButton: w
+    negativeButton: 
+    positiveButton: 
     altNegativeButton: 
     altPositiveButton: 
     gravity: 0
@@ -185,8 +185,8 @@ InputManager:
     m_Name: J1_Tilt
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: down
-    positiveButton: up
+    negativeButton: 
+    positiveButton: 
     altNegativeButton: 
     altPositiveButton: 
     gravity: 0

@@ -23,8 +23,6 @@ public class InputGetter : MonoBehaviour
 
     public int controlledID = -1;
 
-    private bool holding = false;
-
     private int tilt = -1;
     private int actionInt = -1;
 
@@ -97,7 +95,7 @@ public class InputGetter : MonoBehaviour
             Input.GetButtonDown("J0_Defend") && player == 1 ||
             Input.GetButtonDown("J0_Heal") && player == 1)
         {
-            Debug.Log($"Player: {player} tried J0");
+            //Debug.Log($"Player: {player} tried J0");
             return;
         }
 
@@ -105,7 +103,7 @@ public class InputGetter : MonoBehaviour
             Input.GetButtonDown("J1_Defend") && player == 0 ||
             Input.GetButtonDown("J1_Heal") && player == 0)
         {
-            Debug.Log($"Player: {player} tried J1");
+            //Debug.Log($"Player: {player} tried J1");
             return;
         }
 
@@ -120,24 +118,26 @@ public class InputGetter : MonoBehaviour
             return;
         }
 
+
+        CheckTilt();
         //// Green
         if (Input.GetButton($"J{player}_Attack"))
         {
             actionInt = 0;
-            if (controlledID == -1)
-            {
-                CheckTilt();
-            }
+            //if (controlledID == -1)
+            //{
+            //    CheckTilt();
+            //}
             return;
         }
         //// Red
         if (Input.GetButton($"J{player}_Defend"))
         {
             actionInt = 1;
-            if (controlledID == -1)
-            {
-                CheckTilt();
-            }
+            //if (controlledID == -1)
+            //{
+            //    CheckTilt();
+            //}
             return;
         }
         //// Yellow
@@ -148,10 +148,10 @@ public class InputGetter : MonoBehaviour
             return;
         }
 
-        if (controlledID != -1)
-        {
-            CheckTilt();
-        }
+        //if (controlledID != -1)
+        //{
+
+        //}
         //// Blue
         //if (Input.GetKeyDown(KeyCode.JoystickButton2))
         //{
@@ -201,18 +201,15 @@ public class InputGetter : MonoBehaviour
         switch (player)
         {
             case 0:
-                GameManager.Instance.p1ReadyMarker.SetActive(true);
                 GameManager.Instance.p1PlannedAction = action;
                 GameManager.Instance.p1Direction = tilt;
                 break;
             case 1:
-                GameManager.Instance.p2ReadyMarker.SetActive(true);
                 GameManager.Instance.p2PlannedAction = action;
                 GameManager.Instance.p2Direction = tilt;
                 break;
         }
 
-        holding = false;
         tilt = -1;
         actionInt = -1;
     }
@@ -263,22 +260,42 @@ public class InputGetter : MonoBehaviour
     private void CheckTilt()
     {
 
-        // Tilt DOWN
-        if (Input.GetButton($"J{player}_DOWN") || Input.GetAxisRaw($"J{player}_Tilt") < 0)
+        if (controlledID != -1)
         {
-            tilt = 0;
-            holding = false;
-            return;
-        } 
-        else if (Input.GetButton($"J{player}_UP") || Input.GetAxisRaw($"J{player}_Tilt") > 0)
-        {
-            tilt = 2;
-            holding = false;
-            return;
+            if (Input.GetAxisRaw($"J{player}_Tilt") < 0)
+            {
+                tilt = 0;
+                return;
+            }
+            else if (Input.GetAxisRaw($"J{player}_Tilt") > 0)
+            {
+                tilt = 2;
+                return;
+            }
+            else
+            {
+                tilt = 1;
+            }
         }
         else
         {
-            tilt = 1;
+
+            // Tilt DOWN
+            if (Input.GetButton($"J{player}_DOWN"))
+            {
+                tilt = 0;
+                return;
+            }
+            else if (Input.GetButton($"J{player}_UP"))
+            {
+                tilt = 2;
+                return;
+            }
+            else
+            {
+                tilt = 1;
+            }
         }
+
     }
 }

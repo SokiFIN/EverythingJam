@@ -6,13 +6,13 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    private AudioSource aS;
+
+    [SerializeField]
+    private List<AudioClip> clips;
 
     [SerializeField]
     private List<InputGetter> Players;
-    [SerializeField]
-    public GameObject p1ReadyMarker;
-    [SerializeField]
-    public GameObject p2ReadyMarker;
     [SerializeField]
     public GameObject healthsParent;
     [SerializeField]
@@ -76,20 +76,20 @@ public class GameManager : MonoBehaviour
     {
         controllers = Input.GetJoystickNames();
 
-        if (controllers.Length >= 2) 
+        if (controllers.Length >= 1) 
         {
             Players[0].controlledID = 1;
-            Debug.Log($"Assigned controller {controllers[0]} to P1");
+            //Debug.Log($"Assigned controller {controllers[0]} to P1");
             if (controllers.Length >= 2)
             {
                 Players[1].controlledID = 2;
-                Debug.Log($"Assigned controller {controllers[1]} to P2");
+                //Debug.Log($"Assigned controller {controllers[1]} to P2");
             }
         }
 
 
         StartCoroutine(Setup());
-        //StartCoroutine(InfoTextBlink());
+        aS = GetComponent<AudioSource>();
         
     }
 
@@ -117,16 +117,12 @@ public class GameManager : MonoBehaviour
     {
         var waitTime = 0.5f;
 
-        Debug.Log("Setup waiting for actions");
         infoText.text = texts[0];
-        p1ReadyMarker.SetActive(false);
-        p2ReadyMarker.SetActive(false);
 
         // Wait until both are ready
         yield return new WaitUntil(() => p1PlannedAction != Actions.NOT_SELECTED && p2PlannedAction != Actions.NOT_SELECTED);
 
         results = true;
-        Debug.Log("Initiating results!");
         infoText.text = texts[1];
         StartCoroutine(InfoTextBlink());
 
@@ -150,6 +146,7 @@ public class GameManager : MonoBehaviour
             p1PlannedAction = Actions.NOT_SELECTED;
             Players[0].ChangeHealth(2, false);
             Players[0].PotionCount -= 1;
+            PlayAudio(2);
 
         }
         if (p2PlannedAction == Actions.HEAL)
@@ -158,7 +155,10 @@ public class GameManager : MonoBehaviour
             p2PlannedAction = Actions.NOT_SELECTED;
             Players[1].ChangeHealth(2, false);
             Players[1].PotionCount -= 1;
+            PlayAudio(2);
         }
+
+        yield return new WaitUntil(() => !aS.isPlaying);
 
         // Shield actions.
         if (p1PlannedAction == Actions.SHIELD && p2PlannedAction == Actions.ATTACK)
@@ -167,10 +167,12 @@ public class GameManager : MonoBehaviour
             if (p1Direction == p2Direction)
             {
                 Players[1].ChangeHealth(-3, true);
+                PlayAudio(1);
             }
             else
             {
                 Players[0].ChangeHealth(-2, true);
+                PlayAudio(0);
             }
 
         }
@@ -180,25 +182,31 @@ public class GameManager : MonoBehaviour
             if (p1Direction == p2Direction)
             {
                 Players[0].ChangeHealth(-3, true);
+                PlayAudio(1);
             }
             else
             {
                 Players[1].ChangeHealth(-2, true);
+                PlayAudio(0);
             }
 
         }
+        yield return new WaitUntil(() => !aS.isPlaying);
 
         // Attack actions.
         if (p1PlannedAction == Actions.ATTACK && p2PlannedAction != Actions.SHIELD)
         {
             yield return new WaitForSeconds(waitTime);
             Players[1].ChangeHealth(-1, true);
+            PlayAudio(0);
         }
         if (p2PlannedAction == Actions.ATTACK && p1PlannedAction != Actions.SHIELD)
         {
             yield return new WaitForSeconds(waitTime);
             Players[0].ChangeHealth(-1, true);
+            PlayAudio(0);
         }
+        yield return new WaitUntil(() => !aS.isPlaying);
 
         // Reset everything
         p1DirIndicators[p1Direction].SetActive(false);
@@ -207,8 +215,6 @@ public class GameManager : MonoBehaviour
         p2Direction = 0;
         p1PlannedAction = Actions.NOT_SELECTED;
         p2PlannedAction = Actions.NOT_SELECTED;
-        p1ReadyMarker.SetActive(false);
-        p2ReadyMarker.SetActive(false);
 
         // Check if either player has won otherwise continue.
         if (Players[0].Health > 0 && Players[1].Health > 0)
@@ -256,5 +262,10 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(3f);
 
 
+    }
+
+    public void PlayAudio(int audioClip)
+    {
+        aS.PlayOneShot(clips[audioClip]);
     }
 }
