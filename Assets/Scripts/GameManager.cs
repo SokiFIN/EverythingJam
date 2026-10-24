@@ -6,6 +6,18 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
+    [SerializeField]
+    private List<GameObject> p1Arms;
+    [SerializeField]
+    private GameObject p1DefArms;
+
+    [SerializeField]
+    private GameObject p2DefArms;
+
+
+    [SerializeField]
+    private List<GameObject> p2Arms;
+
     private AudioSource aS;
 
     [SerializeField]
@@ -27,7 +39,7 @@ public class GameManager : MonoBehaviour
 
     private Color damageColor = Color.red;
     private Color healColor = Color.forestGreen;
-    private Color shieldColor = Color.cornflowerBlue;
+    private Color shieldColor = Color.darkViolet;
     private string[] controllers;
 
     private List<string> texts = new() { "Choose an action!", "Showing Results!"};
@@ -133,9 +145,13 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         p1SpriteRenderer.color = GetActionColor(0);
         p1DirIndicators[p1Direction].SetActive(true);
+        p1DefArms.SetActive(false);
+        p1Arms[p1Direction].SetActive(true);
         yield return new WaitForSeconds(1f);
         p2SpriteRenderer.color = GetActionColor(1);
         p2DirIndicators[p2Direction].SetActive(true);
+        p2DefArms.SetActive(false);
+        p2Arms[p2Direction].SetActive(true);
         yield return new WaitForSeconds(1f);
 
 
@@ -211,8 +227,12 @@ public class GameManager : MonoBehaviour
         // Reset everything
         p1DirIndicators[p1Direction].SetActive(false);
         p2DirIndicators[p2Direction].SetActive(false);
+        p1Arms[p1Direction].SetActive(false);
+        p2Arms[p2Direction].SetActive(false);
         p1Direction = 0;
         p2Direction = 0;
+        p1DefArms.SetActive(true);
+        p2DefArms.SetActive(true);
         p1PlannedAction = Actions.NOT_SELECTED;
         p2PlannedAction = Actions.NOT_SELECTED;
 

@@ -1,8 +1,9 @@
-using UnityEngine;
-using static GameManager;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.U2D;
+using static GameManager;
 
 public class InputGetter : MonoBehaviour
 {
@@ -12,10 +13,15 @@ public class InputGetter : MonoBehaviour
     [SerializeField]
     private GameObject ownCursorSprite;
     [SerializeField]
-    private GameObject ownSprite;
+    private List<GameObject> ownSprites;
 
     [SerializeField]
     private List<GameObject> healthSprites = new();
+
+    [SerializeField]
+    private GameObject head;
+    [SerializeField]
+    private GameObject body;
 
     private Color ogColor;
     private Color healColor = Color.forestGreen;
@@ -37,7 +43,22 @@ public class InputGetter : MonoBehaviour
     void Start()
     {
         StartCoroutine(TurnIndicator());
-        ogColor = ownSprite.GetComponent<SpriteRenderer>().color;
+        ogColor = ownSprites[0].GetComponent<SpriteRenderer>().color;
+        StartCoroutine(MoveBody());
+
+    }
+
+    private IEnumerator MoveBody()
+    {
+        while (true)
+        {
+            body.transform.position = new Vector2(body.transform.position.x, body.transform.position.y - 0.05f);
+            head.transform.position = new Vector2(head.transform.position.x, head.transform.position.y - 0.05f);
+            yield return new WaitForSeconds(0.4f);
+            body.transform.position = new Vector2(body.transform.position.x, body.transform.position.y + 0.05f);
+            head.transform.position = new Vector2(head.transform.position.x, head.transform.position.y + 0.05f);
+            yield return new WaitForSeconds(0.4f);
+        }
 
     }
 
@@ -46,12 +67,12 @@ public class InputGetter : MonoBehaviour
         while (!GameManager.Instance.GameEnd)
         {
 
-            if (GameManager.Instance.p1PlannedAction == Actions.NOT_SELECTED && player == 0)
+            if (GameManager.Instance.p1PlannedAction == Actions.NOT_SELECTED && player == 0 && GameManager.Instance.p1Direction == 0)
             {
                 ownCursorSprite.SetActive(true);
             }
 
-            if (GameManager.Instance.p2PlannedAction == Actions.NOT_SELECTED && player == 1)
+            if (GameManager.Instance.p2PlannedAction == Actions.NOT_SELECTED && player == 1 && GameManager.Instance.p2Direction == 0)
             {
 
                 ownCursorSprite.SetActive(true);
@@ -246,15 +267,25 @@ public class InputGetter : MonoBehaviour
     {
         if (damage)
         {
-            ownSprite.GetComponent<SpriteRenderer>().color = damageColor;
+            foreach (var sprite in ownSprites)
+            {
+                sprite.GetComponent<SpriteRenderer>().color = damageColor;
+            }
+
 
         }
         else
         {
-            ownSprite.GetComponent<SpriteRenderer>().color = healColor;
+            foreach (var sprite in ownSprites)
+            {
+                sprite.GetComponent<SpriteRenderer>().color = healColor;
+            }
         }
         yield return new WaitForSeconds(0.2f);
-        ownSprite.GetComponent<SpriteRenderer>().color = ogColor;
+        foreach (var sprite in ownSprites)
+        {
+            sprite.GetComponent<SpriteRenderer>().color = ogColor;
+        }
     }
 
     private void CheckTilt()
