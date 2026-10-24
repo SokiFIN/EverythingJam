@@ -110,7 +110,7 @@ public class InputGetter : MonoBehaviour
         }
 
         // Dont know the button yet.
-        if (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.JoystickButton4) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             SceneManager.LoadScene(0);
         }
@@ -124,14 +124,20 @@ public class InputGetter : MonoBehaviour
         if (Input.GetButton($"J{player}_Attack"))
         {
             actionInt = 0;
-            CheckTilt();
+            if (controlledID == -1)
+            {
+                CheckTilt();
+            }
             return;
         }
         //// Red
         if (Input.GetButton($"J{player}_Defend"))
         {
             actionInt = 1;
-            CheckTilt();
+            if (controlledID == -1)
+            {
+                CheckTilt();
+            }
             return;
         }
         //// Yellow
@@ -139,10 +145,13 @@ public class InputGetter : MonoBehaviour
         {
             tilt = 1;
             actionInt = 2;
-            CheckTilt();
             return;
         }
 
+        if (controlledID != -1)
+        {
+            CheckTilt();
+        }
         //// Blue
         //if (Input.GetKeyDown(KeyCode.JoystickButton2))
         //{
@@ -153,11 +162,6 @@ public class InputGetter : MonoBehaviour
         //{
         //    Debug.Log($"Orange was pressed!");
         //}
-
-        if (controlledID >= 0)
-        {
-            CheckTilt();
-        }
 
 
         if (tilt != -1 && actionInt != -1)
@@ -260,13 +264,13 @@ public class InputGetter : MonoBehaviour
     {
 
         // Tilt DOWN
-        if (Input.GetButton($"J{player}_DOWN") || Input.GetAxis($"J{player}_Tilt") < 0 )
+        if (Input.GetButton($"J{player}_DOWN") || Input.GetAxisRaw($"J{player}_Tilt") < 0)
         {
             tilt = 0;
             holding = false;
             return;
         } 
-        else if (Input.GetButton($"J{player}_UP") || Input.GetAxis($"J{player}_Tilt") > 0)
+        else if (Input.GetButton($"J{player}_UP") || Input.GetAxisRaw($"J{player}_Tilt") > 0)
         {
             tilt = 2;
             holding = false;
